@@ -1,0 +1,18 @@
+[
+  {
+    "phone": "123",
+    "name": "Demo User",
+    "balance": 2500,
+    "status": "ON",
+    "account": "1234567890",
+    "bank": "Demo Bank"
+  },
+  {
+    "phone": "+2348106212765",
+    "name": "ANOSIKE MMERICHUKWU NNAEBUKA",
+    "account": "2132690340",
+    "bank": "UBA",
+    "balance": 2000,
+    "status": "ON"
+  }
+]
