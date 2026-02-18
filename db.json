@@ -14,5 +14,13 @@
     "bank": "UBA",
     "balance": 2000,
     "status": "ON"
+  },
+  {
+    "phone": "+2348110671481",
+    "name": "ANOSIKE MMERICHUKWU NNAEBUKA",
+    "account": "2132690340",
+    "bank": "UBA",
+    "balance": 1000,
+    "status": "ON"
   }
 ]
