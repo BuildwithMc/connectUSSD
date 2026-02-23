@@ -1,1186 +1,1605 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Connect Energy — Powering Community, One Transaction at a Time</title>
-  <meta name="description" content="Connect is an offline-first P2P energy trading ecosystem. Buy affordable power via USSD on any phone. No solar panels. No app. Just dial." />
-  <meta property="og:title" content="Connect Energy — P2P Power for Every Community" />
-  <meta property="og:description" content="Buy affordable electricity from your neighbour's solar panel using USSD. No smartphone needed." />
-  <meta property="og:type" content="website" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --green: #00ff87;
-      --green-dim: #00cc6a;
-      --green-glow: rgba(0, 255, 135, 0.15);
-      --amber: #ffb830;
-      --blue: #3b82f6;
-      --bg: #050a0e;
-      --bg2: #0a1118;
-      --bg3: #0f1923;
-      --glass: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.08);
-      --text: #e8f0fe;
-      --muted: #6b7a8d;
-      --card-radius: 20px;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      line-height: 1.6;
-    }
-
-    /* ── NOISE TEXTURE OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 6%;
-      background: rgba(5, 10, 14, 0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-      transition: all 0.3s;
-    }
-
-    .nav-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #fff;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nav-logo span {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 12px var(--green);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.4); opacity: 0.7; }
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--text); }
-
-    .nav-cta {
-      background: var(--green);
-      color: #050a0e !important;
-      padding: 10px 22px;
-      border-radius: 50px;
-      font-weight: 700 !important;
-      font-size: 0.85rem !important;
-      transition: box-shadow 0.3s, transform 0.2s !important;
-    }
-
-    .nav-cta:hover {
-      box-shadow: 0 0 24px var(--green);
-      transform: translateY(-1px);
-      color: #050a0e !important;
-    }
-
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 140px 6% 80px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,135,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 50px;
-      padding: 8px 18px;
-      font-size: 0.8rem;
-      color: var(--green);
-      font-weight: 600;
-      margin-bottom: 28px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .hero-badge::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 2s infinite;
-    }
-
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.6rem, 7vw, 5.5rem);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.03em;
-      max-width: 900px;
-      margin-bottom: 24px;
-    }
-
-    .hero h1 .accent {
-      background: linear-gradient(135deg, var(--green) 0%, #00d4ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero-sub {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      color: var(--muted);
-      max-width: 600px;
-      margin-bottom: 44px;
-      font-weight: 400;
-      line-height: 1.7;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .btn-primary {
-      background: var(--green);
-      color: #050a0e;
-      padding: 16px 36px;
-      border-radius: 50px;
-      font-weight: 800;
-      font-size: 1rem;
-      text-decoration: none;
-      transition: box-shadow 0.3s, transform 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-primary:hover {
-      box-shadow: 0 0 36px rgba(0,255,135,0.5);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--text);
-      padding: 16px 36px;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 1rem;
-      text-decoration: none;
-      border: 1px solid var(--glass-border);
-      transition: border-color 0.3s, background 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--green);
-      background: var(--green-glow);
-    }
-
-    /* USSD Mockup */
-    .hero-visual {
-      margin-top: 70px;
-      position: relative;
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .phone-mock {
-      width: 200px;
-      background: #0f1923;
-      border-radius: 28px;
-      border: 2px solid var(--glass-border);
-      padding: 20px 14px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
-      animation: floatPhone 4s ease-in-out infinite;
-    }
-
-    .phone-mock:nth-child(2) { animation-delay: -2s; margin-top: 40px; }
-
-    @keyframes floatPhone {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-
-    .phone-screen {
-      background: #050a0e;
-      border-radius: 14px;
-      padding: 14px 12px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.7rem;
-      line-height: 1.8;
-      color: var(--green);
-      min-height: 200px;
-    }
-
-    .phone-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 10px;
-      color: var(--muted);
-      font-size: 0.65rem;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .phone-carrier-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
-
-    .ussd-line { color: #e8f0fe; }
-    .ussd-dim { color: var(--muted); }
-    .ussd-highlight { color: var(--green); font-weight: bold; }
-
-    /* Meter card */
-    .meter-card {
-      width: 220px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      padding: 20px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 40px 80px rgba(0,0,0,0.4);
-      animation: floatPhone 4s ease-in-out infinite;
-      animation-delay: -1s;
-    }
-
-    .meter-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-
-    .meter-value {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--green);
-      text-shadow: 0 0 20px var(--green);
-    }
-
-    .meter-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
-
-    .power-bar {
-      margin-top: 14px;
-      height: 6px;
-      background: var(--bg3);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .power-fill {
-      height: 100%;
-      width: 72%;
-      background: linear-gradient(90deg, var(--green), #00d4ff);
-      border-radius: 3px;
-      animation: powerFill 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes powerFill {
-      from { width: 55%; }
-      to { width: 85%; }
-    }
-
-    .meter-status {
-      margin-top: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.72rem;
-      color: var(--green);
-      font-weight: 600;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 2s infinite;
-    }
-
-    /* ── STATS ── */
-    .stats {
-      padding: 60px 6%;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2px;
-      background: var(--glass-border);
-      border-top: 1px solid var(--glass-border);
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .stat-item {
-      background: var(--bg2);
-      padding: 40px 32px;
-      text-align: center;
-    }
-
-    .stat-num {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.8rem;
-      font-weight: 800;
-      color: var(--green);
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat-label { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
-
-    /* ── SECTIONS ── */
-    section { padding: 100px 6%; }
-
-    .section-tag {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 18px;
-    }
-
-    .section-sub {
-      font-size: 1.05rem;
-      color: var(--muted);
-      max-width: 560px;
-      line-height: 1.7;
-    }
-
-    /* ── PROBLEM / SOLUTION SPLIT ── */
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-
-    .split.reverse { direction: rtl; }
-    .split.reverse > * { direction: ltr; }
-
-    /* ── PROBLEM CARD ── */
-    .problem-visual {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      padding: 36px;
-      backdrop-filter: blur(20px);
-    }
-
-    .cost-comparison {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .cost-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .cost-label { font-size: 0.85rem; color: var(--muted); width: 110px; flex-shrink: 0; }
-
-    .cost-bar-wrap { flex: 1; height: 10px; background: var(--bg3); border-radius: 5px; overflow: hidden; }
-
-    .cost-bar {
-      height: 100%;
-      border-radius: 5px;
-      transition: width 1.5s ease;
-    }
-
-    .cost-bar.generator { background: #ef4444; width: 100%; }
-    .cost-bar.connect { background: var(--green); width: 70%; }
-
-    .cost-amount { font-size: 0.85rem; font-weight: 700; width: 60px; text-align: right; }
-    .cost-amount.red { color: #ef4444; }
-    .cost-amount.green { color: var(--green); }
-
-    .savings-badge {
-      margin-top: 20px;
-      background: rgba(0,255,135,0.1);
-      border: 1px solid rgba(0,255,135,0.2);
-      border-radius: 12px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .savings-badge-label { font-size: 0.85rem; color: var(--muted); }
-    .savings-badge-value { font-weight: 800; color: var(--green); font-size: 1.1rem; }
-
-    /* ── HOW IT WORKS ── */
-    .how-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 60px;
-    }
-
-    .how-card {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      padding: 36px 28px;
-      transition: border-color 0.3s, transform 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .how-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--green), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .how-card:hover { border-color: rgba(0,255,135,0.25); transform: translateY(-6px); }
-    .how-card:hover::before { opacity: 1; }
-
-    .how-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 20px;
-    }
-
-    .how-icon.green { background: rgba(0,255,135,0.12); }
-    .how-icon.amber { background: rgba(255,184,48,0.12); }
-    .how-icon.blue { background: rgba(59,130,246,0.12); }
-
-    .how-step {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .how-card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .how-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
-
-    /* USSD Steps */
-    .ussd-steps {
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .ussd-step {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .ussd-step-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(0,255,135,0.15);
-      color: var(--green);
-      font-size: 0.7rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    /* ── IMPACT SECTION ── */
-    .impact-bg {
-      background: var(--bg2);
-      border-top: 1px solid var(--glass-border);
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .impact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-
-    .impact-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .impact-card {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 22px 24px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      transition: border-color 0.3s;
-    }
-
-    .impact-card:hover { border-color: rgba(0,255,135,0.2); }
-
-    .impact-icon {
-      font-size: 1.6rem;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .impact-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
-    .impact-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
-
-    /* ── ROADMAP ── */
-    .roadmap {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin-top: 60px;
-      position: relative;
-    }
-
-    .roadmap::before {
-      content: '';
-      position: absolute;
-      left: 31px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--green), transparent);
-    }
-
-    .roadmap-item {
-      display: flex;
-      gap: 28px;
-      padding-bottom: 44px;
-      position: relative;
-    }
-
-    .roadmap-dot {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 2px solid var(--glass-border);
-      background: var(--bg2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 1;
-      transition: border-color 0.3s;
-    }
-
-    .roadmap-item:hover .roadmap-dot { border-color: var(--green); }
-
-    .roadmap-content { padding-top: 14px; }
-
-    .roadmap-period {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 6px;
-    }
-
-    .roadmap-content h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .roadmap-content p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
-
-    /* ── TESTIMONIAL / LEARNING ── */
-    .learnings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      margin-top: 60px;
-    }
-
-    .learning-card {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      padding: 32px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.3s;
-    }
-
-    .learning-card:hover { transform: translateY(-4px); }
-
-    .learning-card::before {
-      content: '"';
-      position: absolute;
-      top: -10px;
-      left: 20px;
-      font-size: 8rem;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 900;
-      color: var(--green);
-      opacity: 0.07;
-      line-height: 1;
-    }
-
-    .learning-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 16px;
-      padding: 5px 10px;
-      border-radius: 20px;
-    }
-
-    .learning-tag.worked { background: rgba(0,255,135,0.1); color: var(--green); }
-    .learning-tag.surprised { background: rgba(255,184,48,0.1); color: var(--amber); }
-    .learning-tag.iterated { background: rgba(59,130,246,0.1); color: var(--blue); }
-
-    .learning-card p { font-size: 0.92rem; color: var(--text); line-height: 1.7; }
-
-    /* ── CTA ── */
-    .cta-section {
-      text-align: center;
-      padding: 120px 6%;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,255,135,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .cta-section h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 5vw, 3.8rem);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-    }
-
-    .cta-section p { font-size: 1.1rem; color: var(--muted); max-width: 520px; margin: 0 auto 44px; line-height: 1.7; }
-
-    .cta-dial {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 20px 32px;
-      margin-top: 20px;
-    }
-
-    .cta-dial-code {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--green);
-      text-shadow: 0 0 20px rgba(0,255,135,0.4);
-      letter-spacing: 0.05em;
-    }
-
-    .cta-dial-label { font-size: 0.8rem; color: var(--muted); text-align: left; font-weight: 500; }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--bg2);
-      border-top: 1px solid var(--glass-border);
-      padding: 40px 6%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #fff;
-    }
-
-    .footer-copy { font-size: 0.82rem; color: var(--muted); }
-
-    /* ── SCROLL REVEAL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-      .split { grid-template-columns: 1fr; }
-      .split.reverse { direction: ltr; }
-      .how-grid { grid-template-columns: 1fr; }
-      .impact-grid { grid-template-columns: 1fr; }
-      nav .nav-links { display: none; }
-    }
-
-    @media (max-width: 600px) {
-      .hero-visual { display: none; }
-      section { padding: 70px 5%; }
-      .stats { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connect Energy — Powering Community, One Transaction at a Time</title>
+    <meta name="description"
+        content="Connect is an offline-first P2P energy trading ecosystem. Buy affordable power via USSD on any phone. No solar panels. No app. Just dial *384*04227#." />
+    <meta property="og:title" content="Connect Energy — P2P Power for Every Community" />
+    <meta property="og:description"
+        content="Buy affordable electricity from your neighbour's solar panel using USSD. No smartphone needed. Dial *384*04227#" />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --orange: #F97316;
+            --orange-deep: #EA580C;
+            --amber: #F59E0B;
+            --amber-light: #FBD38D;
+            --red-orange: #DC4A04;
+            --dark: #120500;
+            --dark2: #1C0800;
+            --dark3: #260C00;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text: #FFF7ED;
+            --muted: rgba(255, 220, 170, 0.55);
+            --card-radius: 20px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ── GLOBAL GRADIENT BG ── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 100% 70% at 70% -10%, rgba(249, 115, 22, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 80% 60% at 20% 100%, rgba(220, 74, 4, 0.14) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 40% at 50% 50%, rgba(245, 158, 11, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 6%;
+            background: rgba(18, 5, 0, 0.75);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.15);
+            transition: all 0.3s;
+        }
+
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--amber);
+            box-shadow: 0 0 14px var(--amber);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.6;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--amber), var(--orange)) !important;
+            color: #120500 !important;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            transition: box-shadow 0.3s, transform 0.2s !important;
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 28px rgba(245, 158, 11, 0.5) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 130px 6% 80px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            color: var(--amber-light);
+            font-weight: 600;
+            margin-bottom: 28px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--amber);
+            animation: pulse 2s infinite;
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.8rem, 7vw, 5.8rem);
+            font-weight: 800;
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+            max-width: 920px;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--amber) 0%, var(--orange) 50%, var(--red-orange) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 44px;
+            line-height: 1.75;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--amber), var(--orange-deep));
+            color: #fff;
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: box-shadow 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 32px rgba(234, 88, 12, 0.35);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 48px rgba(234, 88, 12, 0.55);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            transition: border-color 0.3s, background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--amber);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        /* Phone mockups */
+        .hero-visual {
+            margin-top: 68px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .phone-mock {
+            width: 190px;
+            background: #1C0800;
+            border-radius: 28px;
+            border: 1.5px solid rgba(249, 115, 22, 0.2);
+            padding: 18px 13px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+            animation: floatPhone 4s ease-in-out infinite;
+        }
+
+        .phone-mock:nth-child(3) {
+            animation-delay: -2s;
+            margin-top: 40px;
+        }
+
+        @keyframes floatPhone {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .phone-screen {
+            background: #0A0300;
+            border-radius: 14px;
+            padding: 14px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.68rem;
+            line-height: 1.85;
+            color: var(--amber);
+            min-height: 200px;
+        }
+
+        .phone-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-size: 0.62rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .phone-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--amber);
+        }
+
+        .ussd-line {
+            color: #FFF7ED;
+        }
+
+        .ussd-dim {
+            color: rgba(251, 211, 141, 0.4);
+        }
+
+        .ussd-hi {
+            color: var(--amber);
+            font-weight: bold;
+        }
+
+        .ussd-good {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        /* Meter Card */
+        .meter-card {
+            width: 210px;
+            background: rgba(30, 10, 0, 0.7);
+            border: 1px solid rgba(249, 115, 22, 0.25);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+            animation: floatPhone 4s ease-in-out infinite;
+            animation-delay: -1s;
+        }
+
+        .meter-label {
+            font-size: 0.68rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .meter-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--amber), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .meter-sub {
+            font-size: 0.73rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .power-bar {
+            margin-top: 14px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .power-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--amber), var(--orange));
+            border-radius: 3px;
+            animation: powerFill 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes powerFill {
+            from {
+                width: 55%;
+            }
+
+            to {
+                width: 85%;
+            }
+        }
+
+        .meter-status {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        /* ── STATS ── */
+        .stats {
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: rgba(249, 115, 22, 0.12);
+            border-top: 1px solid rgba(249, 115, 22, 0.15);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.15);
+        }
+
+        .stat-item {
+            background: var(--dark2);
+            padding: 44px 28px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--amber), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            color: var(--muted);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        /* ── SECTIONS ── */
+        section {
+            padding: 100px 6%;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.73rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 18px;
+            color: #fff;
+        }
+
+        .section-sub {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 560px;
+            line-height: 1.75;
+        }
+
+        /* ── SPLIT ── */
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        /* Problem visual */
+        .problem-visual {
+            background: rgba(30, 10, 0, 0.6);
+            border: 1px solid rgba(249, 115, 22, 0.18);
+            border-radius: var(--card-radius);
+            padding: 36px;
+            backdrop-filter: blur(20px);
+        }
+
+        .cost-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .cost-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cost-label {
+            font-size: 0.83rem;
+            color: var(--muted);
+            width: 110px;
+            flex-shrink: 0;
+        }
+
+        .cost-bar-wrap {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .cost-bar {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .cost-bar.generator {
+            background: #ef4444;
+            width: 100%;
+        }
+
+        .cost-bar.connect {
+            background: linear-gradient(90deg, var(--amber), var(--orange));
+            width: 70%;
+        }
+
+        .cost-amount {
+            font-size: 0.85rem;
+            font-weight: 700;
+            width: 60px;
+            text-align: right;
+        }
+
+        .cost-amount.red {
+            color: #ef4444;
+        }
+
+        .cost-amount.amber {
+            color: var(--amber);
+        }
+
+        .savings-badge {
+            margin-top: 22px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .savings-badge-label {
+            font-size: 0.83rem;
+            color: var(--muted);
+        }
+
+        .savings-badge-value {
+            font-weight: 800;
+            color: var(--amber);
+            font-size: 1.1rem;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .how-card {
+            background: rgba(30, 8, 0, 0.6);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            border-radius: var(--card-radius);
+            padding: 36px 28px;
+            transition: border-color 0.3s, transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .how-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--amber), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .how-card:hover {
+            border-color: rgba(245, 158, 11, 0.35);
+            transform: translateY(-6px);
+        }
+
+        .how-card:hover::before {
+            opacity: 1;
+        }
+
+        .how-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            background: rgba(245, 158, 11, 0.12);
+        }
+
+        .how-step {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .how-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .how-card p {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .ussd-steps {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ussd-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .ussd-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--amber);
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ── SIMULATOR SECTION ── */
+        .simulator-section {
+            background: var(--dark2);
+            border-top: 1px solid rgba(249, 115, 22, 0.15);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.15);
+            padding: 100px 6%;
+            text-align: center;
+        }
+
+        .simulator-wrap {
+            margin-top: 48px;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+            background: #0A0300;
+        }
+
+        .simulator-bar {
+            background: rgba(28, 8, 0, 0.95);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.15);
+        }
+
+        .sim-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .sim-dot.red {
+            background: #ef4444;
+        }
+
+        .sim-dot.yellow {
+            background: var(--amber);
+        }
+
+        .sim-dot.green {
+            background: #4ade80;
+        }
+
+        .sim-url {
+            flex: 1;
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-family: 'Courier New', monospace;
+        }
+
+        .simulator-iframe {
+            width: 100%;
+            height: 680px;
+            border: none;
+            display: block;
+        }
+
+        .sim-fallback {
+            display: none;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .sim-fallback h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .sim-fallback p {
+            color: var(--muted);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        /* ── LEARNINGS ── */
+        .learnings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .learning-card {
+            background: rgba(30, 8, 0, 0.6);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            border-radius: var(--card-radius);
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .learning-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .learning-card::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 8rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            color: var(--amber);
+            opacity: 0.06;
+            line-height: 1;
+        }
+
+        .learning-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .learning-tag.worked {
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+        }
+
+        .learning-tag.surprised {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--amber);
+        }
+
+        .learning-tag.iterated {
+            background: rgba(249, 115, 22, 0.12);
+            color: var(--orange);
+        }
+
+        .learning-card p {
+            font-size: 0.92rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* ── IMPACT ── */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .impact-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .impact-card {
+            background: rgba(30, 8, 0, 0.6);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            border-radius: 16px;
+            padding: 22px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .impact-card:hover {
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .impact-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .impact-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .impact-card p {
+            font-size: 0.83rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── ROADMAP ── */
+        .roadmap {
+            display: flex;
+            flex-direction: column;
+            margin-top: 60px;
+            position: relative;
+        }
+
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 31px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--amber), transparent);
+        }
+
+        .roadmap-item {
+            display: flex;
+            gap: 28px;
+            padding-bottom: 44px;
+        }
+
+        .roadmap-dot {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid rgba(249, 115, 22, 0.2);
+            background: var(--dark2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            z-index: 1;
+            transition: border-color 0.3s;
+        }
+
+        .roadmap-item:hover .roadmap-dot {
+            border-color: var(--amber);
+        }
+
+        .roadmap-content {
+            padding-top: 14px;
+        }
+
+        .roadmap-period {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 6px;
+        }
+
+        .roadmap-content h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .roadmap-content p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        /* ── CTA ── */
+        .cta-section {
+            text-align: center;
+            padding: 120px 6%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 520px;
+            margin: 0 auto 44px;
+            line-height: 1.7;
+        }
+
+        .cta-dial {
+            display: inline-flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(30, 8, 0, 0.7);
+            border: 1px solid rgba(249, 115, 22, 0.25);
+            border-radius: 16px;
+            padding: 20px 36px;
+            margin-top: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .cta-dial-code {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--amber), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.03em;
+        }
+
+        .cta-dial-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: left;
+            font-weight: 500;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #0D0400;
+            border-top: 1px solid rgba(249, 115, 22, 0.12);
+            padding: 40px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .footer-copy {
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 960px) {
+            .split {
+                grid-template-columns: 1fr;
+            }
+
+            .how-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            nav .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-visual {
+                display: none;
+            }
+
+            section {
+                padding: 70px 5%;
+            }
+
+            .how-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .simulator-iframe {
+                height: 500px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-  <!-- NAV -->
-  <nav id="nav">
-    <a href="#" class="nav-logo"><span></span> Connect</a>
-    <ul class="nav-links">
-      <li><a href="#how">How It Works</a></li>
-      <li><a href="#impact">Impact</a></li>
-      <li><a href="#roadmap">Roadmap</a></li>
-      <li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
-    </ul>
-  </nav>
+    <!-- NAV -->
+    <nav id="main-nav">
+        <a href="#" class="nav-logo"><span class="nav-logo-dot"></span> Connect</a>
+        <ul class="nav-links">
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#simulator">Try It Live</a></li>
+            <li><a href="#impact">Impact</a></li>
+            <li><a href="#roadmap">Roadmap</a></li>
+            <li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
+        </ul>
+    </nav>
 
-  <!-- HERO -->
-  <section class="hero" id="home">
-    <div class="hero-bg"></div>
-    <div class="hero-badge">Offline-First P2P Energy</div>
-    <h1>Powering Community,<br /><span class="accent">One Transaction</span><br />at a Time.</h1>
-    <p class="hero-sub">Buy affordable electricity from a neighbour's solar panel using any basic phone — no internet, no app, no solar hardware investment required.</p>
-    <div class="hero-actions">
-      <a href="#waitlist" class="btn-primary" id="hero-join-btn">⚡ Join the Pilot &rarr;</a>
-      <a href="#how" class="btn-secondary" id="hero-learn-btn">See How It Works</a>
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="hero-badge">Offline-First · P2P Energy · Enugu Pilot</div>
+        <h1>We are Powering<br /><span class="accent">Communities.</span><br />One Connection at a Time.</h1>
+        <p class="hero-sub">Buy affordable electricity from a neighbour's solar panel on any basic feature phone — no
+            internet, no app, no capital investment. Just dial.</p>
+        <div class="hero-actions">
+            <a href="#simulator" class="btn-primary" id="hero-try-btn">⚡ Try It Live &rarr;</a>
+            <a href="#waitlist" class="btn-secondary" id="hero-join-btn">Join the Pilot</a>
+        </div>
+
+        <div class="hero-visual">
+            <!-- Phone 1 - Menu -->
+            <div class="phone-mock" id="phone-1">
+                <div class="phone-header">
+                    <div class="phone-dot"></div>
+                    <span>MTN NG &nbsp;·&nbsp; *384*04227#</span>
+                </div>
+                <div class="phone-screen">
+                    <div class="ussd-line">Connect Energy</div>
+                    <div class="ussd-dim">──────────────</div>
+                    <div class="ussd-line">Welcome Back!</div>
+                    <div class="ussd-dim"> </div>
+                    <div class="ussd-line">1. Buy Power</div>
+                    <div class="ussd-line">2. Check Balance</div>
+                    <div class="ussd-line">3. My Account</div>
+                    <div class="ussd-dim"> </div>
+                    <div class="ussd-dim">Enter choice:</div>
+                    <div class="ussd-hi">1▌</div>
+                </div>
+            </div>
+
+            <!-- Meter Card -->
+            <div class="meter-card" id="meter-card-hero">
+                <div class="meter-label">Live Meter Balance</div>
+                <div class="meter-value" id="meter-val">₦1,500</div>
+                <div class="meter-sub">≈ 18 hrs of light remaining</div>
+                <div class="power-bar">
+                    <div class="power-fill"></div>
+                </div>
+                <div class="meter-status">
+                    <div class="status-dot"></div> Power: ON
+                </div>
+                <div style="margin-top:16px;height:1px;background:rgba(249,115,22,0.15)"></div>
+                <div style="margin-top:14px;font-size:0.72rem;color:var(--muted)">Last top-up</div>
+                <div style="font-size:0.85rem;font-weight:600;margin-top:3px;color:#fff">Today · ₦500 added</div>
+            </div>
+
+            <!-- Phone 2 - Success -->
+            <div class="phone-mock" id="phone-2">
+                <div class="phone-header">
+                    <div class="phone-dot"></div>
+                    <span>MTN NG &nbsp;·&nbsp; Success ✓</span>
+                </div>
+                <div class="phone-screen">
+                    <div class="ussd-good">✓ Payment Received!</div>
+                    <div class="ussd-dim">──────────────</div>
+                    <div class="ussd-line">Amount: N500</div>
+                    <div class="ussd-line">Token: 3421-7809</div>
+                    <div class="ussd-dim"> </div>
+                    <div class="ussd-hi">⚡ Meter charged!</div>
+                    <div class="ussd-dim"> </div>
+                    <div class="ussd-line">New Balance:</div>
+                    <div class="ussd-hi">N1,500</div>
+                    <div class="ussd-good">Power: ON ✓</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat-item reveal">
+            <div class="stat-num" data-target="40" data-suffix="%">0%</div>
+            <div class="stat-label">Daily profit lost to generators (avg small business)</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="stat-num" data-target="30" data-suffix="%">0%</div>
+            <div class="stat-label">Cost reduction vs petrol generator</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="stat-num" data-target="100" data-suffix="%">0%</div>
+            <div class="stat-label">Test users preferred USSD over mobile app</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="stat-num" data-target="50" data-suffix="">0</div>
+            <div class="stat-label">Pilot households & businesses — Enugu</div>
+        </div>
     </div>
 
-    <!-- VISUAL -->
-    <div class="hero-visual">
-      <!-- Phone 1 -->
-      <div class="phone-mock" id="phone-mock-1">
-        <div class="phone-header">
-          <div class="phone-carrier-dot"></div>
-          <span>MTN NG &nbsp;•&nbsp; *384*100#</span>
+    <!-- PROBLEM -->
+    <section id="problem">
+        <div class="split">
+            <div class="reveal">
+                <div class="section-tag">The Problem</div>
+                <h2 class="section-title">Small businesses are bleeding money on fuel.</h2>
+                <p class="section-sub">Peri-urban businesses spend up to 40% of daily profit running petrol generators —
+                    while solar-powered neighbours sit on full, unused batteries just next door.</p>
+                <p class="section-sub" style="margin-top:18px;">The user insight that changed everything: people don't
+                    want to <em>own</em> solar panels. They just want reliable, affordable <em>access</em> to the power
+                    next door.</p>
+            </div>
+            <div class="problem-visual reveal">
+                <div
+                    style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:22px;">
+                    Daily Energy Cost</div>
+                <div class="cost-comparison">
+                    <div class="cost-row">
+                        <div class="cost-label">⛽ Generator</div>
+                        <div class="cost-bar-wrap">
+                            <div class="cost-bar generator"></div>
+                        </div>
+                        <div class="cost-amount red">₦2,800</div>
+                    </div>
+                    <div class="cost-row">
+                        <div class="cost-label">⚡ Connect</div>
+                        <div class="cost-bar-wrap">
+                            <div class="cost-bar connect"></div>
+                        </div>
+                        <div class="cost-amount amber">₦950</div>
+                    </div>
+                </div>
+                <div class="savings-badge">
+                    <div class="savings-badge-label">💰 Daily savings estimate</div>
+                    <div class="savings-badge-value">~₦1,850 / day</div>
+                </div>
+                <div style="margin-top:14px;font-size:0.76rem;color:var(--muted);line-height:1.6;">Based on average
+                    8-hour trading day. Figures from pilot test data.</div>
+            </div>
         </div>
-        <div class="phone-screen">
-          <div class="ussd-line">Connect Energy</div>
-          <div class="ussd-dim">──────────────</div>
-          <div class="ussd-line">1. Buy Power</div>
-          <div class="ussd-line">2. Check Balance</div>
-          <div class="ussd-line">3. My Account</div>
-          <div class="ussd-dim"> </div>
-          <div class="ussd-dim">Enter choice:</div>
-          <div class="ussd-highlight">1▌</div>
-        </div>
-      </div>
+    </section>
 
-      <!-- Meter Card -->
-      <div class="meter-card" id="meter-card">
-        <div class="meter-label">Live Meter Balance</div>
-        <div class="meter-value" id="meter-val">₦1,500</div>
-        <div class="meter-sub">≈ 18 hrs of light remaining</div>
-        <div class="power-bar"><div class="power-fill"></div></div>
-        <div class="meter-status"><div class="status-dot"></div> Power: ON</div>
-        <div style="margin-top:16px; height:1px; background:var(--glass-border);"></div>
-        <div style="margin-top:14px; font-size:0.75rem; color:var(--muted);">Last topped up</div>
-        <div style="font-size:0.85rem; font-weight:600; margin-top:3px;">Feb 23 · ₦500 added</div>
-      </div>
+    <!-- HOW IT WORKS -->
+    <section id="how"
+        style="background:var(--dark2);border-top:1px solid rgba(249,115,22,0.12);border-bottom:1px solid rgba(249,115,22,0.12);">
+        <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto;">
+            <div class="section-tag">How It Works</div>
+            <h2 class="section-title">100% USSD. Zero smartphone required.</h2>
+            <p class="section-sub" style="margin:0 auto;">Designed for every phone, every network, zero internet. If you
+                can dial a number, you can buy power.</p>
+        </div>
+        <div class="how-grid">
+            <!-- Card 1 -->
+            <div class="how-card reveal" id="how-ussd">
+                <div class="how-icon">📱</div>
+                <div class="how-step">For the Buyer</div>
+                <h3>USSD Payment Gateway</h3>
+                <p>Dial <strong style="color:var(--amber);">*384*04227#</strong> on any basic phone — no internet, no
+                    app needed. Buy power in seconds using your bank account.</p>
+                <div class="ussd-steps">
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">1</div>Dial *384*04227#
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">2</div>Select Buy Power & enter amount
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">3</div>Confirm with 4-digit PIN
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">4</div>Meter topped up instantly ⚡
+                    </div>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="how-card reveal" id="how-meter">
+                <div class="how-icon">🔌</div>
+                <div class="how-step">The Hardware</div>
+                <h3>Connect Smart Meter</h3>
+                <p>A low-cost, locally repairable PCB device that bridges the seller's inverter and the buyer's
+                    premises. Power cuts automatically when balance hits zero.</p>
+                <div class="ussd-steps">
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Real-time balance monitoring
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Automatic relay cutoff at ₦0
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Tamper-proof & voltage-safe
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Locally repairable design
+                    </div>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="how-card reveal" id="how-seller">
+                <div class="how-icon">💸</div>
+                <div class="how-step">For the Seller (Prosumer)</div>
+                <h3>USSD Seller Interface</h3>
+                <p>Solar homeowners manage their earnings entirely via USSD too — no smartphone, no dashboard needed.
+                    Check revenue, manage buyers, withdraw — all by dialling.</p>
+                <div class="ussd-steps">
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Check daily energy revenue
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>View active buyer connections
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Withdraw earnings to bank
+                    </div>
+                    <div class="ussd-step">
+                        <div class="ussd-step-num">✓</div>Works on any feature phone
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      <!-- Phone 2 -->
-      <div class="phone-mock" id="phone-mock-2">
-        <div class="phone-header">
-          <div class="phone-carrier-dot"></div>
-          <span>MTN NG &nbsp;•&nbsp; Success</span>
+    <!-- LIVE SIMULATOR -->
+    <section class="simulator-section" id="simulator">
+        <div class="reveal" style="max-width:700px;margin:0 auto;">
+            <div class="section-tag">Try It Live</div>
+            <h2 class="section-title">Test the USSD flow right here.</h2>
+            <p class="section-sub" style="margin:0 auto 8px;">Use the Africa's Talking simulator below. Dial <strong
+                    style="color:var(--amber);">*384*04227#</strong> and experience buying power — no phone required.
+            </p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0;">Enter your phone number, select <strong
+                    style="color:var(--amber);">Nigeria (+234)</strong>, and dial the code to start.</p>
         </div>
-        <div class="phone-screen">
-          <div class="ussd-highlight">✓ Payment Received!</div>
-          <div class="ussd-dim">──────────────</div>
-          <div class="ussd-line">Amount: N500</div>
-          <div class="ussd-line">Token: 3421-7809</div>
-          <div class="ussd-dim"> </div>
-          <div class="ussd-highlight">Meter charged ⚡</div>
-          <div class="ussd-dim"> </div>
-          <div class="ussd-line">New Balance:</div>
-          <div class="ussd-highlight">N1,500</div>
-          <div class="ussd-line">Power: ON ✓</div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="40">0%</div>
-      <div class="stat-label">Daily profit lost to generators (avg business)</div>
-    </div>
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="30">0%</div>
-      <div class="stat-label">Cost reduction vs petrol generator</div>
-    </div>
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="100">0%</div>
-      <div class="stat-label">Test users preferred USSD over mobile app</div>
-    </div>
-    <div class="stat-item reveal">
-      <div class="stat-num" data-target="50">0</div>
-      <div class="stat-label">Pilot households & businesses — Enugu</div>
-    </div>
-  </div>
+        <div class="simulator-wrap reveal" style="max-width:1100px;margin:48px auto 0;">
+            <div class="simulator-bar">
+                <div class="sim-dot red"></div>
+                <div class="sim-dot yellow"></div>
+                <div class="sim-dot green"></div>
+                <div class="sim-url">developers.africastalking.com/simulator</div>
+            </div>
+            <iframe id="at-simulator" class="simulator-iframe" src="https://developers.africastalking.com/simulator"
+                title="Africa's Talking USSD Simulator" allow="clipboard-write" loading="lazy">
+            </iframe>
+            <!-- Fallback if iframe is blocked -->
+            <div class="sim-fallback" id="sim-fallback">
+                <h3>🌐 Open the Simulator</h3>
+                <p>The simulator requires opening in a new tab. Click below, then dial <strong
+                        style="color:var(--amber);">*384*04227#</strong></p>
+                <a href="https://developers.africastalking.com/simulator" target="_blank" rel="noopener"
+                    class="btn-primary" id="sim-open-btn">Open Simulator &rarr;</a>
+            </div>
+        </div>
 
-  <!-- PROBLEM -->
-  <section id="problem">
-    <div class="split">
-      <div class="reveal">
-        <div class="section-tag">The Problem</div>
-        <h2 class="section-title">Small businesses are <br />bleeding money on fuel.</h2>
-        <p class="section-sub">Peri-urban businesses spend up to 40% of daily profit running petrol generators — while solar-powered neighbours sit on full, unused batteries just next door. Connect closes that gap.</p>
-        <p class="section-sub" style="margin-top:16px;">The user insight that changed everything: people don't want to <em>own</em> solar panels. They just want reliable, affordable <em>access</em> to the power next door.</p>
-      </div>
-      <div class="problem-visual reveal">
-        <div style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:20px;">Daily Energy Cost Comparison</div>
-        <div class="cost-comparison">
-          <div class="cost-row">
-            <div class="cost-label">⛽ Generator</div>
-            <div class="cost-bar-wrap"><div class="cost-bar generator"></div></div>
-            <div class="cost-amount red">₦2,800</div>
-          </div>
-          <div class="cost-row">
-            <div class="cost-label">⚡ Connect</div>
-            <div class="cost-bar-wrap"><div class="cost-bar connect"></div></div>
-            <div class="cost-amount green">₦950</div>
-          </div>
+        <!-- Quick guide -->
+        <div class="reveal"
+            style="max-width:700px;margin:36px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+            <div
+                style="background:rgba(30,8,0,0.6);border:1px solid rgba(249,115,22,0.15);border-radius:14px;padding:18px;text-align:left;">
+                <div
+                    style="font-size:0.7rem;color:var(--amber);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
+                    Step 1</div>
+                <div style="font-size:0.88rem;color:var(--text);">Enter your phone number & select
+                    <strong>Nigeria</strong></div>
+            </div>
+            <div
+                style="background:rgba(30,8,0,0.6);border:1px solid rgba(249,115,22,0.15);border-radius:14px;padding:18px;text-align:left;">
+                <div
+                    style="font-size:0.7rem;color:var(--amber);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
+                    Step 2</div>
+                <div style="font-size:0.88rem;color:var(--text);">Dial <strong
+                        style="color:var(--amber);">*384*04227#</strong> in the USSD field</div>
+            </div>
+            <div
+                style="background:rgba(30,8,0,0.6);border:1px solid rgba(249,115,22,0.15);border-radius:14px;padding:18px;text-align:left;">
+                <div
+                    style="font-size:0.7rem;color:var(--amber);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
+                    Step 3</div>
+                <div style="font-size:0.88rem;color:var(--text);">Follow prompts to register & buy power ⚡</div>
+            </div>
         </div>
-        <div class="savings-badge">
-          <div class="savings-badge-label">💰 Estimated daily savings</div>
-          <div class="savings-badge-value">~₦1,850 / day</div>
-        </div>
-        <div style="margin-top:14px; font-size:0.78rem; color:var(--muted); line-height:1.6;">Based on average 8-hour trading day. Figures are illustrative from pilot data.</div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- HOW IT WORKS -->
-  <section id="how" style="background:var(--bg2); border-top:1px solid var(--glass-border); border-bottom:1px solid var(--glass-border);">
-    <div class="reveal" style="text-align:center; max-width:600px; margin:0 auto;">
-      <div class="section-tag">How It Works</div>
-      <h2 class="section-title">Three parts. Zero complexity.</h2>
-      <p class="section-sub" style="margin:0 auto;">Designed for infrastructure-light environments where internet access is unreliable and smartphones are not universal.</p>
-    </div>
-    <div class="how-grid">
-      <div class="how-card reveal" id="how-card-ussd">
-        <div class="how-icon green">📱</div>
-        <div class="how-step">For the Buyer</div>
-        <h3>USSD Payment Gateway</h3>
-        <p>Dial <strong style="color:var(--green);">*384*100#</strong> on any basic phone — no internet needed. Buy power in seconds using your bank account.</p>
-        <div class="ussd-steps">
-          <div class="ussd-step"><div class="ussd-step-num">1</div> Dial USSD code</div>
-          <div class="ussd-step"><div class="ussd-step-num">2</div> Select Buy Power & enter amount</div>
-          <div class="ussd-step"><div class="ussd-step-num">3</div> Confirm with 4-digit PIN</div>
-          <div class="ussd-step"><div class="ussd-step-num">4</div> Meter topped up instantly ⚡</div>
+    <!-- LEARNINGS -->
+    <section id="learnings">
+        <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 0;">
+            <div class="section-tag">Test Phase Learnings</div>
+            <h2 class="section-title">Built from real user feedback.</h2>
         </div>
-      </div>
-      <div class="how-card reveal" id="how-card-meter">
-        <div class="how-icon amber">🔌</div>
-        <div class="how-step">The Hardware</div>
-        <h3>Connect Smart Meter</h3>
-        <p>A low-cost, locally repairable PCB device that bridges the seller's inverter and the buyer's premises. Power cuts automatically when balance hits zero.</p>
-        <div class="ussd-steps">
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Real-time balance monitoring</div>
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Automatic relay cutoff</div>
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Tamper-proof & voltage-safe</div>
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Locally repairable design</div>
+        <div class="learnings-grid">
+            <div class="learning-card reveal">
+                <div class="learning-tag worked">✓ What Worked</div>
+                <p>The offline USSD interface was a <strong>massive success</strong>. 100% of test users preferred it
+                    over a mobile app — eliminating friction from poor internet connectivity entirely.</p>
+            </div>
+            <div class="learning-card reveal">
+                <div class="learning-tag surprised">⚡ What Surprised Us</div>
+                <p>Users were <strong>alienated by kWh metrics</strong>. Selling "Kilowatt-hours" created confusion and
+                    suspicion. People think in Naira and hours of light — not technical units.</p>
+            </div>
+            <div class="learning-card reveal">
+                <div class="learning-tag iterated">🔄 The Iteration</div>
+                <p>We updated the USSD to show only <strong>"Estimated Hours of Light"</strong> and <strong>"Naira
+                        Balance."</strong> Instantly boosted trust and willingness to pay.</p>
+            </div>
         </div>
-      </div>
-      <div class="how-card reveal" id="how-card-dashboard">
-        <div class="how-icon blue">📊</div>
-        <div class="how-step">For the Seller</div>
-        <h3>Seller Web Dashboard</h3>
-        <p>A lightweight dashboard for solar homeowners to track energy sold, revenue earned, and buyers connected — turning idle battery capacity into passive income.</p>
-        <div class="ussd-steps">
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Daily energy & revenue stats</div>
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Buyer management</div>
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Auto revenue sharing</div>
-          <div class="ussd-step"><div class="ussd-step-num">✓</div> Works on smartphone</div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- LEARNINGS -->
-  <section id="learnings">
-    <div class="reveal" style="text-align:center; max-width:600px; margin:0 auto 0;">
-      <div class="section-tag">Test Phase Learnings</div>
-      <h2 class="section-title">Built from real user feedback.</h2>
-    </div>
-    <div class="learnings-grid">
-      <div class="learning-card reveal" id="learning-worked">
-        <div class="learning-tag worked">✓ What Worked</div>
-        <p>The offline USSD interface was a <strong>massive success</strong>. 100% of test users preferred it over a mobile app — eliminating friction from poor internet connectivity entirely.</p>
-      </div>
-      <div class="learning-card reveal" id="learning-surprised">
-        <div class="learning-tag surprised">⚡ What Surprised Us</div>
-        <p>Users were <strong>alienated by energy metrics</strong>. Selling "Kilowatt-hours (kWh)" created confusion and suspicion. People don't think in kWh — they think in Naira and hours of light.</p>
-      </div>
-      <div class="learning-card reveal" id="learning-iterated">
-        <div class="learning-tag iterated">🔄 The Iteration</div>
-        <p>We updated the USSD to show only <strong>"Estimated Hours of Light"</strong> and <strong>"Naira Balance."</strong> Translating tech into economic reality instantly boosted trust and willingness to pay.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- IMPACT -->
-  <section id="impact" class="impact-bg">
-    <div class="impact-grid">
-      <div class="reveal">
-        <div class="section-tag">Impact Hypothesis</div>
-        <h2 class="section-title">Who benefits, and how much.</h2>
-        <p class="section-sub">Our pilot targets a closed-loop network of 50 households and businesses — proving a resilient micro-grid can be built entirely on existing private infrastructure.</p>
-      </div>
-      <div class="impact-cards">
-        <div class="impact-card reveal" id="impact-buyers">
-          <div class="impact-icon">🏪</div>
-          <div>
-            <h4>Small Business Buyers</h4>
-            <p>Bypass the heavy capital cost of solar ownership. Reduce daily energy operating costs by ~30% vs running a petrol generator — immediately.</p>
-          </div>
+    <!-- IMPACT -->
+    <section id="impact"
+        style="background:var(--dark2);border-top:1px solid rgba(249,115,22,0.12);border-bottom:1px solid rgba(249,115,22,0.12);">
+        <div class="impact-grid">
+            <div class="reveal">
+                <div class="section-tag">Impact Hypothesis</div>
+                <h2 class="section-title">Who benefits, and exactly how much.</h2>
+                <p class="section-sub">Proving a resilient micro-grid can be built entirely on existing private
+                    infrastructure — starting with 50 households in Enugu.</p>
+            </div>
+            <div class="impact-cards">
+                <div class="impact-card reveal">
+                    <div class="impact-icon">🏪</div>
+                    <div>
+                        <h4>Small Business Buyers</h4>
+                        <p>Bypass solar ownership entirely. Cut daily energy costs by ~30% vs running a petrol generator
+                            — starting day one.</p>
+                    </div>
+                </div>
+                <div class="impact-card reveal">
+                    <div class="impact-icon">🏠</div>
+                    <div>
+                        <h4>Solar Homeowner Sellers</h4>
+                        <p>Monetize wasted battery capacity. Earn passive income to recoup their solar investment — no
+                            extra hardware needed.</p>
+                    </div>
+                </div>
+                <div class="impact-card reveal">
+                    <div class="impact-icon">🌍</div>
+                    <div>
+                        <h4>The Broader Community</h4>
+                        <p>Fewer generator hours, less fumes, more resilience. A community micro-grid that works even
+                            when the utility grid is down.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="impact-card reveal" id="impact-sellers">
-          <div class="impact-icon">🏠</div>
-          <div>
-            <h4>Solar Homeowner Sellers</h4>
-            <p>Monetize previously wasted battery capacity. Earn passive income to recoup their solar investment faster without any additional hardware.</p>
-          </div>
-        </div>
-        <div class="impact-card reveal" id="impact-community">
-          <div class="impact-icon">🌍</div>
-          <div>
-            <h4>The Broader Community</h4>
-            <p>Fewer hours of generator noise and fumes. A resilient community micro-grid that works even when the utility grid is down — powered by neighbours.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ROADMAP -->
-  <section id="roadmap">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start;">
-      <div class="reveal">
-        <div class="section-tag">Roadmap</div>
-        <h2 class="section-title">Realistic. Grounded. <br />Achievable.</h2>
-        <p class="section-sub">A 6-month plan from hardware design to live pilot — built on evidence from real test users, not assumptions.</p>
-      </div>
-      <div class="roadmap reveal">
-        <div class="roadmap-item" id="roadmap-1">
-          <div class="roadmap-dot">🔧</div>
-          <div class="roadmap-content">
-            <div class="roadmap-period">Months 1 – 2</div>
-            <h3>Technical Refinement</h3>
-            <p>Finalize PCB design for the Connect Smart Meter. Optimize Node.js USSD backend for sub-2s response times across all carrier networks.</p>
-          </div>
+    <!-- ROADMAP -->
+    <section id="roadmap">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
+            <div class="reveal">
+                <div class="section-tag">Roadmap</div>
+                <h2 class="section-title">Realistic. Grounded. Achievable.</h2>
+                <p class="section-sub">6 months from hardware design to live pilot — built on evidence from real test
+                    users.</p>
+            </div>
+            <div class="roadmap reveal">
+                <div class="roadmap-item">
+                    <div class="roadmap-dot">🔧</div>
+                    <div class="roadmap-content">
+                        <div class="roadmap-period">Months 1 – 2</div>
+                        <h3>Technical Refinement</h3>
+                        <p>Finalize PCB design for the Connect Smart Meter. Optimize Node.js USSD backend for sub-2s
+                            response times on all networks.</p>
+                    </div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="roadmap-dot">🏭</div>
+                    <div class="roadmap-content">
+                        <div class="roadmap-period">Months 3 – 4</div>
+                        <h3>Alpha Manufacturing</h3>
+                        <p>Manufacture 10 pilot smart meter units for bench testing, focused on tamper-proofing and
+                            voltage-drop safety.</p>
+                    </div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="roadmap-dot">🚀</div>
+                    <div class="roadmap-content">
+                        <div class="roadmap-period">Months 5 – 6</div>
+                        <h3>Live Pilot — Enugu</h3>
+                        <p>Deploy 20 units in a gated estate. Capture real transaction data, refine P2P revenue model,
+                            and prepare for regional scaling.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="roadmap-item" id="roadmap-2">
-          <div class="roadmap-dot">🏭</div>
-          <div class="roadmap-content">
-            <div class="roadmap-period">Months 3 – 4</div>
-            <h3>Alpha Manufacturing</h3>
-            <p>Manufacture 10 pilot units for controlled bench testing, with heavy focus on tamper-proofing and voltage-drop safety standards.</p>
-          </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="waitlist">
+        <div class="reveal">
+            <div class="section-tag">Get Early Access</div>
+            <h2>Ready to ditch the <span
+                    style="background:linear-gradient(135deg,var(--amber),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">generator?</span>
+            </h2>
+            <p>Join our pilot waitlist. Be among the first 50 homes and businesses in Enugu to access peer-to-peer
+                electricity.</p>
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;">
+                <a href="mailto:connect@buildwithmc.com?subject=Connect%20Pilot%20Waitlist" class="btn-primary"
+                    id="cta-email-btn">✉️ Join the Waitlist</a>
+                <a href="#simulator" class="btn-secondary" id="cta-sim-btn">📱 Try the Simulator</a>
+            </div>
+            <div class="cta-dial">
+                <div>
+                    <div class="cta-dial-label">USSD Code</div>
+                    <div class="cta-dial-code">*384*04227#</div>
+                </div>
+                <div style="width:1px;height:50px;background:rgba(249,115,22,0.2)"></div>
+                <div>
+                    <div class="cta-dial-label">Works on any phone</div>
+                    <div style="font-size:1.4rem;margin-top:6px;">📱 🔲 ☎️</div>
+                </div>
+            </div>
         </div>
-        <div class="roadmap-item" id="roadmap-3">
-          <div class="roadmap-dot">🚀</div>
-          <div class="roadmap-content">
-            <div class="roadmap-period">Months 5 – 6</div>
-            <h3>Live Pilot — Enugu</h3>
-            <p>Deploy the 20-unit pilot in a gated estate. Capture real-world transaction data, refine the P2P revenue model, and prepare for regional scaling.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CTA -->
-  <section class="cta-section" id="waitlist">
-    <div class="reveal">
-      <div class="section-tag">Get Early Access</div>
-      <h2>Ready to ditch the <span style="background:linear-gradient(135deg,var(--green),#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">generator?</span></h2>
-      <p>Join our pilot waitlist. Be among the first 50 homes and businesses in Enugu to access affordable peer-to-peer electricity.</p>
-      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;">
-        <a href="mailto:connect@buildwithmc.com?subject=Connect%20Pilot%20Waitlist" class="btn-primary" id="cta-waitlist-btn">✉️ Join the Waitlist</a>
-        <a href="tel:*384*100%23" class="btn-secondary" id="cta-dial-btn">📱 Dial to Try</a>
-      </div>
-      <div class="cta-dial">
-        <div>
-          <div class="cta-dial-label">USSD Code</div>
-          <div class="cta-dial-code">*384*100#</div>
-        </div>
-        <div style="width:1px;height:50px;background:var(--glass-border);"></div>
-        <div>
-          <div class="cta-dial-label">Works on any phone</div>
-          <div style="font-size:1.5rem;margin-top:4px;">📱 🔲 ☎️</div>
-        </div>
-      </div>
-    </div>
-  </section>
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-logo">⚡ Connect Energy</div>
+        <div class="footer-copy">Powering community, one connection at a time.</div>
+        <div class="footer-copy">Built by <strong>ANOSIKE MMERICHUKWU</strong> · connect.buildwithmc.com</div>
+    </footer>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-logo">⚡ Connect Energy</div>
-    <div class="footer-copy">Built by BuildwithMC · Enugu, Nigeria · 2025</div>
-    <div class="footer-copy">Powering community, one transaction at a time.</div>
-  </footer>
+    <script>
+        // ── Scroll Reveal ──
+        const reveals = document.querySelectorAll('.reveal');
+        const revObs = new IntersectionObserver(entries => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) {
+                    setTimeout(() => e.target.classList.add('visible'), i * 80);
+                    revObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.08 });
+        reveals.forEach(el => revObs.observe(el));
 
-  <script>
-    // ── Scroll Reveal ──
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach((e, i) => {
-        if (e.isIntersecting) {
-          setTimeout(() => e.target.classList.add('visible'), i * 80);
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => observer.observe(el));
+        // ── Counter Animation ──
+        document.querySelectorAll('.stat-num').forEach(el => {
+            const obs = new IntersectionObserver(entries => {
+                if (!entries[0].isIntersecting) return;
+                const target = parseInt(el.dataset.target);
+                const suffix = el.dataset.suffix || '';
+                let cur = 0;
+                const step = target / 60;
+                const t = setInterval(() => {
+                    cur = Math.min(cur + step, target);
+                    el.textContent = Math.floor(cur) + suffix;
+                    if (cur >= target) clearInterval(t);
+                }, 16);
+                obs.unobserve(el);
+            }, { threshold: 0.5 });
+            obs.observe(el);
+        });
 
-    // ── Counter Animation ──
-    const stats = document.querySelectorAll('.stat-num');
-    const statObs = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const el = entry.target;
-          const target = parseInt(el.dataset.target);
-          const isPercent = [40, 30, 100].includes(target);
-          let current = 0;
-          const step = target / 60;
-          const timer = setInterval(() => {
-            current = Math.min(current + step, target);
-            el.textContent = Math.floor(current) + (isPercent ? '%' : '');
-            if (current >= target) clearInterval(timer);
-          }, 16);
-          statObs.unobserve(el);
-        }
-      });
-    }, { threshold: 0.5 });
-    stats.forEach(s => statObs.observe(s));
+        // ── Meter ticker ──
+        const meterEl = document.getElementById('meter-val');
+        let bal = 1500;
+        setInterval(() => {
+            bal = bal > 800 ? bal - Math.floor(Math.random() * 4) : 1500;
+            meterEl.textContent = '₦' + bal.toLocaleString();
+        }, 2200);
 
-    // ── Meter Value Ticker ──
-    const meterEl = document.getElementById('meter-val');
-    let balance = 1500;
-    setInterval(() => {
-      balance = balance > 800 ? balance - Math.floor(Math.random() * 3) : 1500;
-      meterEl.textContent = '₦' + balance.toLocaleString();
-    }, 2000);
+        // ── Nav scroll opacity ──
+        window.addEventListener('scroll', () => {
+            document.getElementById('main-nav').style.background =
+                window.scrollY > 60 ? 'rgba(18,5,0,0.95)' : 'rgba(18,5,0,0.75)';
+        });
 
-    // ── Nav Scroll ──
-    window.addEventListener('scroll', () => {
-      document.getElementById('nav').style.background =
-        window.scrollY > 60 ? 'rgba(5,10,14,0.95)' : 'rgba(5,10,14,0.8)';
-    });
-  </script>
+        // ── Iframe fallback ──
+        const iframe = document.getElementById('at-simulator');
+        iframe.addEventListener('error', () => {
+            iframe.style.display = 'none';
+            document.getElementById('sim-fallback').style.display = 'block';
+        });
+        // Timeout fallback
+        setTimeout(() => {
+            try {
+                const iDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (!iDoc || iDoc.body.innerHTML === '') {
+                    iframe.style.display = 'none';
+                    document.getElementById('sim-fallback').style.display = 'block';
+                }
+            } catch (e) {
+                // Cross-origin loaded = works fine, do nothing
+            }
+        }, 5000);
+    </script>
 </body>
+
 </html>
