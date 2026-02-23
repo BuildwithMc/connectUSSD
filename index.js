@@ -25,22 +25,14 @@ app.post('/ussd', async (req, res) => {
         if (session.step === 'WELCOME') {
             const user = services.getUserByPhone(phoneNumber);
             if (user) {
-                if (!user.pin) {
-                    // User exists but has NO PIN — prompt to set one
-                    response = `CON Welcome ${user.name}!
-Your account needs a PIN to continue.
-Set Your 4-Digit Transaction PIN:`;
-                    session.step = 'EXISTING_SET_PIN';
-                } else {
-                    // User exists with PIN -> Main Menu
-                    response = `CON Welcome Back ${user.name}
+                // Phone exists in DB → go straight to main menu, no setup needed
+                response = `CON Welcome Back ${user.name}
 1. Buy Power
 2. Check Balance
 3. Manage Account`;
-                    session.step = 'MAIN_MENU';
-                }
+                session.step = 'MAIN_MENU';
             } else {
-                // New User -> Register
+                // Brand-new number → registration flow
                 response = `CON Welcome to Connect Energy
 Please Register to proceed.
 Select Your Bank:

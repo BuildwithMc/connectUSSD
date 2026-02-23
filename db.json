@@ -16,20 +16,12 @@
     "status": "ON"
   },
   {
-    "phone": "+2348110671481",
+    "phone": "+2348106212763",
     "name": "ANOSIKE MMERICHUKWU NNAEBUKA",
     "account": "2132690340",
     "bank": "UBA",
-    "balance": 1000,
-    "status": "ON"
-  },
-  {
-    "phone": "+2348106212765",
-    "name": "ANOSIKE MMERICHUKWU NNAEBUKA",
-    "account": "2132690340",
-    "bank": "UBA",
-    "pin": "6557739a67283a8de383fc5c0997fbec7c5721a46f28f3235fc9607598d9016b",
-    "balance": 3000,
+    "pin": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "balance": 21000,
     "status": "ON"
   }
 ]
