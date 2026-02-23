@@ -1,6 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const DB_FILE = path.join(__dirname, 'db.json');
 const PAYSTACK_SECRET = 'sk_test_a9218d5c3caa55878f8646cd08cc79682f4d6195';
@@ -26,14 +27,27 @@ function getUserByPhone(phone) {
     return user;
 }
 
-function createUser(phone, name, account, bank) {
+// --- PIN Logic ---
+function hashPin(pin) {
+    return crypto.createHash('sha256').update(pin.toString()).digest('hex');
+}
+
+function verifyPin(phone, pin) {
+    const db = loadDB();
+    const user = db.find(u => u.phone === phone);
+    if (!user || !user.pin) return false;
+    return user.pin === hashPin(pin);
+}
+
+function createUser(phone, name, account, bank, pin) {
     const db = loadDB();
     const newUser = {
         phone,
         name,
         account,
         bank,
-        balance: 1000, // Welcome bonus
+        pin: hashPin(pin), // Stored as SHA-256 hash, never plain text
+        balance: 1000,     // Welcome bonus
         status: 'ON'
     };
     db.push(newUser);
@@ -45,15 +59,19 @@ function updateBalance(phone, amount) {
     const db = loadDB();
     const user = db.find(u => u.phone === phone);
     if (user) {
-        user.balance += amount; // Simulation (add logic for deduction?)
-        // If buying power, deduct?
-        // Wait, "Buy Power" usually deducts.
-        // User flow: "Input amount... paystack generated... validated... transaction successful".
-        // This implies Adding Funds or Paying Bill?
-        // "Buy Power" usually means paying for electricity.
-        // I'll deduct for now.
-        user.balance -= amount;
+        user.balance = (user.balance || 0) + amount; // Add amount when buying power
         saveDB(db);
+        console.log(`Balance updated for ${phone}: N${user.balance} total`);
+    }
+}
+
+function setPin(phone, pin) {
+    const db = loadDB();
+    const user = db.find(u => u.phone === phone);
+    if (user) {
+        user.pin = hashPin(pin);
+        saveDB(db);
+        console.log(`PIN set for existing user: ${phone}`);
     }
 }
 
@@ -92,5 +110,7 @@ module.exports = {
     createUser,
     resolveAccount,
     updateBalance,
+    verifyPin,
+    setPin,
     BANKS
 };

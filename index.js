@@ -25,14 +25,22 @@ app.post('/ussd', async (req, res) => {
         if (session.step === 'WELCOME') {
             const user = services.getUserByPhone(phoneNumber);
             if (user) {
-                // User Exists -> Main Menu
-                response = `CON Welcome Back ${user.name}
+                if (!user.pin) {
+                    // User exists but has NO PIN — prompt to set one
+                    response = `CON Welcome ${user.name}!
+Your account needs a PIN to continue.
+Set Your 4-Digit Transaction PIN:`;
+                    session.step = 'EXISTING_SET_PIN';
+                } else {
+                    // User exists with PIN -> Main Menu
+                    response = `CON Welcome Back ${user.name}
 1. Buy Power
 2. Check Balance
 3. Manage Account`;
-                session.step = 'MAIN_MENU';
+                    session.step = 'MAIN_MENU';
+                }
             } else {
-                // User New -> Register
+                // New User -> Register
                 response = `CON Welcome to Connect Energy
 Please Register to proceed.
 Select Your Bank:
@@ -58,39 +66,82 @@ Select Your Bank:
         } else if (session.step === 'REGISTER_ENTER_ACCOUNT') {
             const accountNo = text.split('*').pop();
             if (accountNo.length === 10) {
-                response = `CON Verifying Account...
-(Press 1 to continue)`;
-                // In real USSD, blocking operations > 2s timeout.
-                // We ask user to "Press 1" to give us time or just try?
-                // Let's try async verify in one go if fast.
-                // If slow, user sees "Connection Problem".
-                // I'll try direct verify.
+                // Verify account with Paystack first, then respond
                 const name = await services.resolveAccount(accountNo, session.bankCode);
                 if (name) {
                     session.accountName = name;
                     session.accountNumber = accountNo;
-                    response = `CON Account Found: ${name}
-1. Confirm & Register
-2. Cancel`;
+                    response = `CON Account Found: ${name}\n1. Confirm & Register\n2. Cancel`;
                     session.step = 'REGISTER_CONFIRM';
                 } else {
-                    response = `END Account verification failed. Name not found.`;
-                    delete sessions[sessionId];
+                    response = `CON Account not found. Check details & re-enter 10-digit Account Number:`;
+                    // Stay in same step so user can retry
                 }
             } else {
-                response = `CON Invalid Account Number. Enter 10 digits:`;
+                response = `CON Invalid Account Number. Must be exactly 10 digits:\nEnter Account Number:`;
                 // Remain in step
             }
         } else if (session.step === 'REGISTER_CONFIRM') {
             const choice = text.split('*').pop();
             if (choice === '1') {
-                services.createUser(phoneNumber, session.accountName, session.accountNumber, session.bankName);
-                response = `END Registration Successful!
-Welcome ${session.accountName}.
-Dial again to Buy Power.`;
-                delete sessions[sessionId];
+                // Account confirmed — now ask them to set a PIN
+                response = `CON Account Verified!\nSet Your 4-Digit Transaction PIN:\n(This PIN secures all future transactions)`;
+                session.step = 'REGISTER_SET_PIN';
             } else {
                 response = `END Registration Cancelled.`;
+                delete sessions[sessionId];
+            }
+        } else if (session.step === 'REGISTER_SET_PIN') {
+            const pin = text.split('*').pop();
+            if (pin.length !== 4 || isNaN(pin)) {
+                response = `CON Invalid PIN. Must be exactly 4 digits:\nSet Your 4-Digit Transaction PIN:`;
+                // Stay in same step
+            } else {
+                session.newPin = pin;
+                response = `CON Confirm Your 4-Digit PIN:\n(Re-enter the same PIN to confirm)`;
+                session.step = 'REGISTER_CONFIRM_PIN';
+            }
+        } else if (session.step === 'REGISTER_CONFIRM_PIN') {
+            const confirmPin = text.split('*').pop();
+            if (confirmPin !== session.newPin) {
+                response = `CON PINs do not match. Try again:\nSet Your 4-Digit Transaction PIN:`;
+                session.newPin = null;
+                session.step = 'REGISTER_SET_PIN';
+            } else {
+                // PINs match — create the user with hashed PIN
+                services.createUser(
+                    phoneNumber,
+                    session.accountName,
+                    session.accountNumber,
+                    session.bankName,
+                    session.newPin
+                );
+                response = `END Registration Successful!\nWelcome ${session.accountName}.\nPIN set securely. Dial again to Buy Power.`;
+                delete sessions[sessionId];
+            }
+        } else if (session.step === 'EXISTING_SET_PIN') {
+            const pin = text.split('*').pop();
+            if (pin.length !== 4 || isNaN(pin)) {
+                response = `CON Invalid PIN. Must be exactly 4 digits:
+Set Your 4-Digit Transaction PIN:`;
+            } else {
+                session.newPin = pin;
+                response = `CON Confirm Your 4-Digit PIN:
+(Re-enter the same PIN to confirm)`;
+                session.step = 'EXISTING_CONFIRM_PIN';
+            }
+        } else if (session.step === 'EXISTING_CONFIRM_PIN') {
+            const confirmPin = text.split('*').pop();
+            if (confirmPin !== session.newPin) {
+                response = `CON PINs do not match. Try again:
+Set Your 4-Digit Transaction PIN:`;
+                session.newPin = null;
+                session.step = 'EXISTING_SET_PIN';
+            } else {
+                // Save PIN for existing user
+                services.setPin(phoneNumber, session.newPin);
+                response = `END PIN Set Successfully!
+Dial again to access your account.`;
                 delete sessions[sessionId];
             }
         } else if (session.step === 'MAIN_MENU') {
@@ -100,10 +151,10 @@ Dial again to Buy Power.`;
 Enter Amount (Naira):`;
                 session.step = 'BUY_ENTER_AMOUNT';
             } else if (choice === '2') {
-                const user = services.getUserByPhone(phoneNumber);
-                response = `END Wallet Balance: N${user.balance}
-Status: ${user.status}`;
-                delete sessions[sessionId];
+                // Ask for PIN before showing balance
+                response = `CON Check Balance
+Enter Your 4-Digit Transaction PIN:`;
+                session.step = 'CHECK_BALANCE_PIN';
             } else {
                 response = `END Invalid Choice.`;
                 delete sessions[sessionId];
@@ -129,21 +180,38 @@ Enter 4-Digit PIN to confirm:`;
                     delete sessions[sessionId];
                 }
             }
+        } else if (session.step === 'CHECK_BALANCE_PIN') {
+            const pin = text.split('*').pop();
+            const pinValid = services.verifyPin(phoneNumber, pin);
+            if (pinValid) {
+                const user = services.getUserByPhone(phoneNumber);
+                response = `END Account Balance: N${user.balance}
+Meter Status: ${user.status}
+Account: ${user.bank} - *${user.account.slice(-4)}`;
+            } else {
+                response = `END Incorrect PIN. Access Denied.
+Dial again to retry.`;
+            }
+            delete sessions[sessionId];
         } else if (session.step === 'BUY_ENTER_PIN') {
             const pin = text.split('*').pop();
-            // Verify PIN (Simulation: Any 4 digits)
-            if (pin.length === 4) {
-                // Deduct balance? Or charge?
-                // Simulation: Success
-                services.updateBalance(phoneNumber, parseInt(session.amount));
-                // Generate Token
+            const pinValid = services.verifyPin(phoneNumber, pin);
+            if (pinValid) {
+                const amount = parseInt(session.amount);
+                services.updateBalance(phoneNumber, amount);
+                // Fetch updated balance from DB
+                const updatedUser = services.getUserByPhone(phoneNumber);
+                // Generate electricity token
                 const token = Math.floor(1000 + Math.random() * 9000) + '-' + Math.floor(1000 + Math.random() * 9000);
-                response = `END Transaction Successful!
+                response = `END Payment Successful! N${session.amount} received.
+Your meter has been automatically recharged.
 Token: ${token}
+New Balance: N${updatedUser.balance}
 Power Status: ON`;
                 delete sessions[sessionId];
             } else {
-                response = `END Invalid PIN Format. Transaction Failed.`;
+                response = `END Incorrect PIN. Transaction Failed.
+Dial again to retry.`;
                 delete sessions[sessionId];
             }
         } else {
